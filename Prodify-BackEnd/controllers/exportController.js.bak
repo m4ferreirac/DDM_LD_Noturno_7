@@ -1,0 +1,64 @@
+const Tasks = require('../models/tasks');
+
+function toCsvValue(v) {
+  if (v == null) return '';
+  const s = String(v).replace(/"/g, '""');
+  return `"${s}"`;
+}
+
+function formatDate(val) {
+  if (!val) return '';
+  try {
+    if (typeof val.toDate === 'function') return val.toDate().toISOString();
+    if (val instanceof Date) return val.toISOString();
+    if (typeof val === 'object' && typeof val._seconds === 'number') {
+      const ms = (val._seconds * 1000) + Math.floor((val._nanoseconds || 0) / 1e6);
+      return new Date(ms).toISOString();
+    }
+    if (typeof val === 'string' || typeof val === 'number') {
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) return d.toISOString();
+      return String(val);
+    }
+    return String(val);
+  } catch (_e) {
+    return String(val);
+  }
+}
+
+async function exportManagerCompletedCsv(req, res) {
+  if (!req.role.isManager) return res.status(403).json({ error: 'Manager role required' });
+  const uid = req.user.uid;
+  const rows = await Tasks.list({ managerId: uid, state: 'Done' });
+
+  const header = [
+    'Programador',
+    'Descricao',
+    'DataPrevistaInicio',
+    'DataPrevista',
+    'TipoTarefa',
+    'DataRealInicio',
+    'DataRealFim'
+  ];
+
+  const lines = [header.join(';')];
+  for (const t of rows) {
+    const prog = (t.idProgrammers && t.idProgrammers[0]) || '';
+    lines.push([
+      toCsvValue(prog),
+      toCsvValue(t.description || ''),
+      toCsvValue(formatDate(t.expectedStartDate)),
+      toCsvValue(formatDate(t.expectedEndDate)),
+      toCsvValue(t.idTaskType || ''),
+      toCsvValue(formatDate(t.realStartDate)),
+      toCsvValue(formatDate(t.realEndDate))
+    ].join(';'));
+  }
+
+  const csv = lines.join('\n');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="completed.csv"');
+  res.send(csv);
+}
+
+module.exports = { exportManagerCompletedCsv };

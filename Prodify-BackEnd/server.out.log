@@ -1,0 +1,3 @@
+[dotenv@17.2.3] injecting env (10) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+DEV_BYPASS_AUTH enabled: skipping Firebase init
+Server is running on port 3000

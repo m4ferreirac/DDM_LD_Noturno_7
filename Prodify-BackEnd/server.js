@@ -1,41 +1,47 @@
+require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
+
 const app = express();
 
+// Core middlewares
+app.use(cors());
 app.use(express.json());
 
-// Api root endpoint 
-app.get('/', (req, res) => {
-  res.send('API on.');
-});
-const db = require('./firebase');
-
-app.get('/FireBase', async (req, res) => {
-  try {
-    const snapshot = await db.collection('test').get();
-    res.send("conected to Firebase ✅");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Erro one connecting to Firebase ❌");
-  }
+// Health check
+app.get('/', (_req, res) => {
+  res.json({ status: 'ok' });
 });
 
+// Always initialize Firebase (real Firestore), even if auth bypass is on
+require('./firebase');
 
+// Auth + role middlewares
 const authMiddleware = require('./authMiddleware');
+const loadRole = require('./middlewares/role');
 
-// Endpoint projected that requires authentication
-app.get('/perfil', authMiddleware, (req, res) => {
-  res.send({
-    message: "Token valid ✅",
-    uid: req.user.uid,
-    email: req.user.email,
-    provider: req.user.firebase.sign_in_provider
-  });
+// Routers
+const usersRouter = require('./routes/users');
+const taskTypesRouter = require('./routes/taskTypes');
+const tasksRouter = require('./routes/tasks');
+const statsRouter = require('./routes/stats');
+const exportRouter = require('./routes/export');
+
+// Protected routes
+app.use(authMiddleware, loadRole);
+// Singular, capitalized API paths per project convention
+app.use('/User', usersRouter);
+app.use('/TaskType', taskTypesRouter);
+app.use('/Task', tasksRouter);
+app.use('/stats', statsRouter);
+app.use('/export', exportRouter);
+
+// Fallback 404
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found' });
 });
 
-
-
-
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
