@@ -1,8 +1,6 @@
 const admin = require('firebase-admin');
 
 async function authMiddleware(req, res, next) {
-  // Requires a valid Firebase ID token (no dev bypass)
-
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
