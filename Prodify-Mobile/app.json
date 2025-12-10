@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Prodify",
+    "slug": "prodify-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#3498db"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.istec.prodify",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Esta aplicação não utiliza a câmara.",
+        "NSPhotoLibraryUsageDescription": "Esta aplicação não acede às fotos."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#3498db"
+      },
+      "package": "com.istec.prodify",
+      "versionCode": 1,
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "prodify-mobile"
+      }
+    },
+    "scheme": "prodify"
+  }
+}

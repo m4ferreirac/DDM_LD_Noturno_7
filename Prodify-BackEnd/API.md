@@ -34,7 +34,9 @@ Routes (singular, capitalized)
 User (manager only unless noted)
 - `POST /User` → create user
   - Body: `{ uid?, userName, name, isManager, department?, experienceLevel?, managerId? }`
-- `GET /User` → list users
+- `GET /User` → list users (manager only)
+- `GET /User/public/names` → list user names (any authenticated user)
+  - Returns: `[{ id, name, isManager }]`
 - `GET /User/:uid` → self or manager
 - `PATCH /User/:uid` → update fields (userName immutable here)
 - `DELETE /User/:uid`
@@ -52,6 +54,7 @@ Task
 - `GET /Task` → list (manager sees own; programmer can filter)
   - Query: `state`, `programmer`
 - `GET /Task/kanban` → `{ ToDo, Doing, Done }`
+- `GET /Task/:id` → get single task (manager sees own tasks; programmer sees assigned tasks)
 - `PATCH /Task/:id` (manager) → update non-state fields
 - `DELETE /Task/:id` (manager)
 - `POST /Task/:id/move` (programmer)
